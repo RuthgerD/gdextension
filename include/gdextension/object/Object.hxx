@@ -2,10 +2,10 @@
 
 #include <any>
 #include <optional>
+#include "gdextension/core/Interface.hxx"
 #include "gdextension/object/ObjectHandle.hxx"
 // #include "gdextension/core/detail/core.hxx"
 #include "gdextension/utils/FixedString.hxx"
-#include "gdextension/variant/Array.hxx"
 #include "gdextension/variant/NodePath.hxx"
 #include "gdextension/variant/String.hxx"
 #include "gdextension/variant/StringName.hxx"
@@ -45,8 +45,8 @@ class Object {
     bool is_blocking_signals() const;
 
     bool has_method(StringName name);
-    Variant call(StringName method, Array args);
-    Variant call_deferred(StringName method, Array args);
+    Variant call(StringName method, Vector<Variant> args);
+    Variant call_deferred(StringName method, Vector<Variant> args);
 
     std::uint64_t instance_id() const;
 

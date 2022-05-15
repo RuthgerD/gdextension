@@ -1,6 +1,7 @@
 #pragma once
 
 #include <type_traits>
+#include <typeinfo>
 #include "gdextension/core/Interface.hxx"
 #include "gdextension/variant/Variant.hxx"
 
@@ -15,6 +16,9 @@ template <FromNativeVariant T> struct variant_traits<T> {
 
     static value_type from(const Variant& v) {
         const thread_local auto ctor = interface.get_variant_to_type_constructor(variant_type);
+        auto type = interface.variant_get_type(const_cast<Variant*>(&v));
+        if (type != variant_type)
+            throw std::bad_cast{};
         value_type out;
         ctor(&out, const_cast<Variant*>(&v));
         return out;

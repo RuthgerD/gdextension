@@ -7,8 +7,12 @@
 #include "gdextension/core/Initialization.hxx"
 #include "gdextension/object/Ptr.hxx"
 #include "gdextension/object/Register.hxx"
+#include "gdextension/variant/Vector.hxx"
+#include "gdextension/variant/VectorTraits.hxx"
+
 #include "gdextension/variant/String.hxx"
 #include "gdextension/variant/Variant.hxx"
+#include "gdextension/variant/detail/VariantOps.hxx"
 
 template <class T, FixedString name, PropertyHint hint, FixedString hint_string, PropertyUsageFlags usage>
 struct Type {};
@@ -34,11 +38,14 @@ struct BasicExtension : public Extends<"BasicExtension", RefCounted> {
         //     // do something?
         // });
 
-        reg.register_method<"instance_method", [](Self* self, const String& text) {
+        reg.register_method<"instance_method", [](Self* self, String text, Vector<Variant> arr) {
             std::cout << "instance method!? " << self << "\n";
 
-            for (const auto c : text)
-                std::cout << static_cast<char>(c) << "\n";
+            std::cout << static_cast<std::string>(text) << "\n";
+
+            for (const auto& str : arr) {
+                std::cout << static_cast<std::string>(static_cast<String>(str)) << "\n";
+            }
         }>();
 
         reg.register_method<"static_method", [](Ptr<Object> obj) -> String {
@@ -78,15 +85,17 @@ extern "C" auto extension(const Interface* iface, const ExtensionClassLibrary* l
 
     auto something = String{U"Hello world!"};
 
-    // variant_traits<Ptr<Object>>::from(Variant{});
+    auto arr = Vector<String>{};
 
-    // for (auto c : variant) {
-    //     std::cout << (char)c << "\n";
-    // }
+    arr.push_back(U"12345");
+    arr.push_back(U"12345");
+    arr.emplace_back(U"12345");
 
-    // auto standard = std::string{something};
+    (void)arr;
 
-    // std::cout << standard << "\n";
+    for (const auto& str : arr) {
+        std::cout << static_cast<std::string>(str) << "\n";
+    }
 
     return true;
 }

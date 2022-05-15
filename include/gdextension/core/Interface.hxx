@@ -13,10 +13,8 @@
 #include "gdextension/core/InstanceBinding.hxx"
 #include "gdextension/object/ObjectHandle.hxx"
 
-#include "gdextension/variant/Array.hxx"
 #include "gdextension/variant/Color.hxx"
 #include "gdextension/variant/Dictionary.hxx"
-#include "gdextension/variant/PackedArray.hxx"
 #include "gdextension/variant/String.hxx"
 #include "gdextension/variant/Vector2.hxx"
 #include "gdextension/variant/Vector3.hxx"
@@ -25,6 +23,8 @@
 
 class StringName;
 class MethodBind;
+
+template <class T> class Vector;
 
 // clang-format off
 struct Interface {
@@ -127,32 +127,32 @@ struct Interface {
     const char32_t* (*string_operator_index_const)(const String* self, std::int64_t index);
 
     /* Packed array functions */
-    uint8_t* (*packed_byte_array_operator_index)(PackedArray<std::uint8_t>* self, std::int64_t index);
-    const uint8_t* (*packed_byte_array_operator_index_const)(const PackedArray<std::uint8_t>* self, std::int64_t index);
+    uint8_t* (*packed_byte_array_operator_index)(Vector<std::uint8_t>* self, std::int64_t index);
+    const uint8_t* (*packed_byte_array_operator_index_const)(const Vector<std::uint8_t>* self, std::int64_t index);
 
-    Color* (*packed_color_array_operator_index)(PackedArray<Color>* self, std::int64_t index);
-    Color* (*packed_color_array_operator_index_const)(const PackedArray<Color>* self, std::int64_t index);
+    Color* (*packed_color_array_operator_index)(Vector<Color>* self, std::int64_t index);
+    Color* (*packed_color_array_operator_index_const)(const Vector<Color>* self, std::int64_t index);
 
-    float* (*packed_float32_array_operator_index)(PackedArray<float>* self, std::int64_t index);
-    const float* (*packed_float32_array_operator_index_const)(const PackedArray<float>* self, std::int64_t index);
-    double* (*packed_float64_array_operator_index)(PackedArray<double>* self, std::int64_t index);
-    const double* (*packed_float64_array_operator_index_const)(const PackedArray<double>* self, std::int64_t index);
+    float* (*packed_float32_array_operator_index)(Vector<float>* self, std::int64_t index);
+    const float* (*packed_float32_array_operator_index_const)(const Vector<float>* self, std::int64_t index);
+    double* (*packed_float64_array_operator_index)(Vector<double>* self, std::int64_t index);
+    const double* (*packed_float64_array_operator_index_const)(const Vector<double>* self, std::int64_t index);
 
-    int32_t* (*packed_int32_array_operator_index)(PackedArray<std::int32_t>* self, std::int64_t index);
-    const int32_t* (*packed_int32_array_operator_index_const)(const PackedArray<std::int32_t>* self, std::int64_t index);
-    int64_t* (*packed_int64_array_operator_index)(PackedArray<std::int64_t>* self, std::int64_t index);
-    const int64_t* (*packed_int64_array_operator_index_const)(const PackedArray<std::int64_t>* self, std::int64_t index);
+    int32_t* (*packed_int32_array_operator_index)(Vector<std::int32_t>* self, std::int64_t index);
+    const int32_t* (*packed_int32_array_operator_index_const)(const Vector<std::int32_t>* self, std::int64_t index);
+    int64_t* (*packed_int64_array_operator_index)(Vector<std::int64_t>* self, std::int64_t index);
+    const int64_t* (*packed_int64_array_operator_index_const)(const Vector<std::int64_t>* self, std::int64_t index);
 
-    String* (*packed_string_array_operator_index)(PackedArray<String>* self, std::int64_t index);
-    String* (*packed_string_array_operator_index_const)(const PackedArray<String>* self, std::int64_t index);
+    String* (*packed_string_array_operator_index)(Vector<String>* self, std::int64_t index);
+    String* (*packed_string_array_operator_index_const)(const Vector<String>* self, std::int64_t index);
 
-    Vector2* (*packed_vector2_array_operator_index)(PackedArray<Vector2>* self, std::int64_t index);
-    Vector2* (*packed_vector2_array_operator_index_const)(const PackedArray<Vector2>* self, std::int64_t index);
-    Vector3* (*packed_vector3_array_operator_index)(PackedArray<Vector3>* self, std::int64_t index);
-    Vector3* (*packed_vector3_array_operator_index_const)(const PackedArray<Vector3>* self, std::int64_t index);
+    Vector2* (*packed_vector2_array_operator_index)(Vector<Vector2>* self, std::int64_t index);
+    Vector2* (*packed_vector2_array_operator_index_const)(const Vector<Vector2>* self, std::int64_t index);
+    Vector3* (*packed_vector3_array_operator_index)(Vector<Vector3>* self, std::int64_t index);
+    Vector3* (*packed_vector3_array_operator_index_const)(const Vector<Vector3>* self, std::int64_t index);
 
-    Variant* (*array_operator_index)(Array* self, std::int64_t index);
-    Variant* (*array_operator_index_const)(const Array* self, std::int64_t index);
+    Variant* (*array_operator_index)(Vector<Variant>* self, std::int64_t index);
+    Variant* (*array_operator_index_const)(const Vector<Variant>* self, std::int64_t index);
 
     Variant* (*dictionary_operator_index)(Dictionary* self, const Variant* key);
     Variant* (*dictionary_operator_index_const)(const Dictionary* self, const Variant* key);

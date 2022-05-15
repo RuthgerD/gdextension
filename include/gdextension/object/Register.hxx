@@ -68,9 +68,9 @@ struct wrap_func_info {
     template <class From> constexpr Ret operator()(This* t, std::span<From, argc> arguments) const {
         return [=]<class T, T... i>(std::integer_sequence<T, i...>) {
             if constexpr (!is_static)
-                return _function(t, static_cast<std::remove_cvref_t<Args>>((arguments[i]))...);
+                return _function(t, static_cast<std::remove_cvref_t<Args>>((*arguments[i]))...);
             else
-                return _function(static_cast<std::remove_cvref_t<Args>>((arguments[i]))...);
+                return _function(static_cast<std::remove_cvref_t<Args>>((*arguments[i]))...);
         }
         (std::index_sequence_for<Args...>{});
     }
@@ -132,7 +132,7 @@ template <class This> struct Register {
                     return;
                 }
 
-                const auto arguments = std::span<const Variant, fun.argc>{*args, fun.argc};
+                const auto arguments = std::span<const Variant*, fun.argc>{args, fun.argc};
 
                 This* self = nullptr;
 
