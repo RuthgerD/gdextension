@@ -11,6 +11,7 @@
 #include "gdextension/core/Extension.hxx"
 #include "gdextension/core/Interface.hxx"
 #include "gdextension/object/ObjectHandle.hxx"
+#include "gdextension/object/RawPtr.hxx"
 #include "gdextension/object/Register.hxx"
 #include "gdextension/utils/FixedString.hxx"
 #include "gdextension/variant/String.hxx"
@@ -33,21 +34,19 @@ template <FixedString class_name, class T> struct Extends : public T {
 constexpr static auto test = InstanceBindingCallbacks{
     nullptr, [](void*, void*, void* instance) { delete reinterpret_cast<std::any*>(instance); }, nullptr};
 
-template <class T, class... Args> auto instance_extension_class(Args... args) -> T* {
+template <class T, class... Args> auto instance_extension_class(Args... args) -> RawPtr<T> {
 
-    std::any* instance;
-    if constexpr (requires { typename T::Extended; }) {
+    if constexpr (ExtensionObject<T>) {
         auto obj = interface.classdb_construct_object(T::Extended::name.data());
-        instance = new std::any{std::in_place_type_t<T>{}, obj, args...};
+        auto* instance = new std::any{std::in_place_type_t<T>{}, obj, args...};
         interface.object_set_instance(obj, T::name.data(),
                                       reinterpret_cast<GDExtensionClassInstance*>(instance));
         interface.object_set_instance_binding(obj, token(), instance, &noop_instance_binding_callback);
+        return RawPtr<T>{&std::any_cast<T&>(*instance)};
     } else {
         auto obj = interface.classdb_construct_object(T::name.data());
-        instance = new std::any{std::in_place_type_t<T>{}, obj, args...};
-        interface.object_set_instance_binding(obj, token(), instance, &test);
+        return std::bit_cast<T>(obj);
     }
-    return &std::any_cast<T&>(*instance);
 }
 
 // clang-format off
@@ -133,9 +132,12 @@ template <class This> struct Register {
                     return;
                 }
 
-                // TODO: return value
                 const auto arguments = std::span<const Variant, fun.argc>{*args, fun.argc};
-                const auto self = reinterpret_cast<This*>(instance);
+
+                This* self = nullptr;
+
+                if constexpr (!fun.is_static)
+                    self = std::any_cast<This>(reinterpret_cast<std::any*>(instance));
 
                 *ret = Variant{};
                 if constexpr (fun.has_return)
@@ -147,7 +149,10 @@ template <class This> struct Register {
         constexpr static auto ptr_call =
             +[](void*, GDExtensionClassInstance* instance, const TypeT* args, TypeT ret) {
                 const auto arguments = std::span<const TypeT, fun.argc>{args, fun.argc};
-                const auto self = reinterpret_cast<This*>(instance);
+
+                This* self = nullptr;
+                if constexpr (!fun.is_static)
+                    self = std::any_cast<This>(reinterpret_cast<std::any*>(instance));
 
                 if constexpr (fun.has_return)
                     ret = fun(self, arguments);

@@ -17,9 +17,13 @@ struct BasicExtension : public Extends<"BasicExtension", RefCounted> {
     using Self = BasicExtension;
 
     std::string str;
+    int specific = 420;
 
     // using Extension::Extension;
-    BasicExtension(ObjectHandle owner) : Extends{owner}, str{"str"} {}
+    BasicExtension(ObjectHandle owner)
+        : Extends{owner}, str{"this is a long string that needs to be allocated"} {
+        std::cout << "BasicExtension created at " << this << '\n';
+    }
 
     void class_func() {}
 
@@ -30,15 +34,15 @@ struct BasicExtension : public Extends<"BasicExtension", RefCounted> {
         //     // do something?
         // });
 
-        reg.register_method<"instance_method", [](Self* self, String text) {
-            std::cout << "instance method!? " << self->instance_id() << "\n";
+        reg.register_method<"instance_method", [](Self* self, const String& text) {
+            std::cout << "instance method!? " << self << "\n";
 
-            for (auto c : text)
+            for (const auto c : text)
                 std::cout << static_cast<char>(c) << "\n";
         }>();
 
-        reg.register_method<"static_method", []() -> String {
-            std::cout << "static method!?\n";
+        reg.register_method<"static_method", [](Ptr<Object> obj) -> String {
+            std::cout << "static method!? " << obj->instance_id() << "\n";
 
             return U"Yes we are unicode 🤖";
         }>();
@@ -57,11 +61,11 @@ extern "C" auto extension(const Interface* iface, const ExtensionClassLibrary* l
         if (Initialization::Level::SCENE == level) {
             Register{&BasicExtension::register_class};
 
-            auto object = Ptr<BasicExtension>(std::in_place_t{});
+            // auto object = Ptr<BasicExtension>(std::in_place_t{});
 
-            std::cout << "instance id:" << object->instance_id() << "\n";
+            // std::cout << "instance id:" << object->instance_id() << "\n";
 
-            std::cout << "ext: " << object->str << "\n";
+            // std::cout << "ext: " << object->str << "\n";
         }
     };
 
@@ -74,9 +78,7 @@ extern "C" auto extension(const Interface* iface, const ExtensionClassLibrary* l
 
     auto something = String{U"Hello world!"};
 
-    auto variant = Variant{something}.operator String();
-
-    auto obj2 = static_cast<Ptr<Object>>(Variant{});
+    // variant_traits<Ptr<Object>>::from(Variant{});
 
     // for (auto c : variant) {
     //     std::cout << (char)c << "\n";

@@ -1,10 +1,11 @@
 #pragma once
 
+#include <type_traits>
 #include "gdextension/core/Interface.hxx"
 #include "gdextension/variant/Variant.hxx"
 
 template <class T>
-concept FromNativeVariant = std::is_standard_layout_v<T> && std::default_initializable<T> && requires {
+concept FromNativeVariant = std::is_standard_layout_v<T> && std::is_default_constructible_v<T> && requires {
     { T::variant_type } -> std::same_as<const VariantType&>;
 };
 
@@ -12,9 +13,11 @@ template <FromNativeVariant T> struct variant_traits<T> {
     using value_type = T;
     constexpr static auto variant_type = T::variant_type;
 
-    static void from(const Variant& v, value_type& out) {
+    static value_type from(const Variant& v) {
         const thread_local auto ctor = interface.get_variant_to_type_constructor(variant_type);
+        value_type out;
         ctor(&out, const_cast<Variant*>(&v));
+        return out;
     }
 
     static void into(const value_type& v, Variant& out) {
